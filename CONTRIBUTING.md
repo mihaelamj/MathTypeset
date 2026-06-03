@@ -17,7 +17,6 @@ backend (PDF, SVG, MathML) can emit.
 ## Build and test
 
 ```sh
-cd Packages
 swift build
 swift test
 ```

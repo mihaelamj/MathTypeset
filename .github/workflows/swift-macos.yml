@@ -15,4 +15,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build and test
-        run: cd Packages && swift build && swift test
+        run: swift build && swift test

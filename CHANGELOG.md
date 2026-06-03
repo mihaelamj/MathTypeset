@@ -5,6 +5,14 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1]
+
+### Fixed
+
+- Move `Package.swift` to the repository root (from `Packages/`) so the package
+  can be consumed as a SwiftPM git dependency. SwiftPM resolves the manifest
+  only at the repo root, so `0.1.0` could not be depended on.
+
 ## [0.1.0]
 
 ### Added
