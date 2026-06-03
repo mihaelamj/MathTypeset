@@ -5,6 +5,26 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0]
+
+### Changed
+
+- The radical sign (`\\sqrt`) is now drawn as two **scaling vector strokes**
+  instead of a fixed glyph, so it grows with the radicand height and its
+  up-stroke meets the vinculum. Fixes the detached small-sign look on tall
+  radicands.
+
+### Added
+
+- `MathLayoutElement.line(x1:y1:x2:y2:thickness:color:)`: a stroked segment for
+  shapes a rule cannot express (the diagonal radical strokes), in the same
+  baseline-relative +y-up space as the other elements.
+
+### Breaking
+
+- `MathLayoutElement` has a new `.line` case. Consumers that `switch` over it
+  exhaustively must add a branch that strokes a line between the two points.
+
 ## [0.3.0]
 
 ### Changed

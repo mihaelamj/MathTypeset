@@ -222,14 +222,31 @@ struct MathLayoutTests {
             .layout(sum, size: 10, displayStyle: true)
         #expect(unicodeSum.textElement(containing: "\u{2211}") != nil)
         #expect(asciiSum.textElement(containing: "sum") != nil)
+    }
 
-        let root = MathNode.radical(radicand: .text("x"))
-        let unicodeSqrt = try MathLayout(font: .regular, color: .black, measureText: measure, symbolStyle: .unicode)
-            .layout(root, size: 10, displayStyle: false)
-        let asciiSqrt = try MathLayout(font: .regular, color: .black, measureText: measure, symbolStyle: .asciiFallback)
-            .layout(root, size: 10, displayStyle: false)
-        #expect(unicodeSqrt.textElement(containing: "\u{221A}") != nil)
-        #expect(asciiSqrt.textElement(containing: "sqrt") != nil)
+    @Test("Radical sign is two strokes that scale with the radicand")
+    func radicalSignScalesWithStrokes() throws {
+        let measure: @Sendable (MathRun) -> Double = { Double($0.text.count) * $0.size * 0.6 }
+        func sign(_ radicand: MathNode) throws -> (count: Int, top: Double) {
+            let box = try MathLayout(font: .regular, color: .black, measureText: measure)
+                .layout(.radical(radicand: radicand), size: 10, displayStyle: true)
+            var count = 0
+            var top = 0.0
+            for element in box.elements {
+                if case let .line(_, y1, _, y2, _, _) = element {
+                    count += 1
+                    top = max(top, y1, y2)
+                }
+            }
+            return (count, top)
+        }
+
+        let short = try sign(.text("x"))
+        let tall = try sign(.fraction(numerator: .text("a"), denominator: .text("b")))
+        #expect(short.count == 2)
+        #expect(tall.count == 2)
+        // The up-stroke meets the vinculum, so a taller radicand makes it reach higher.
+        #expect(tall.top > short.top)
     }
 
     private func makeLayout(metrics: MathLayoutMetrics = .default) -> MathLayout {

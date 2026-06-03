@@ -270,30 +270,33 @@ public struct MathLayout {
         size: Double,
         displayStyle: Bool,
     ) throws -> MathBox {
-        let radicalSign = symbolStyle == .asciiFallback ? "sqrt" : "\u{221A}"
-        let radical = try layoutText(radicalSign, size: metrics.radicalSignSize(size: size))
         let radicandBox = try layout(radicand, size: metrics.radicalRadicandSize(size: size), displayStyle: displayStyle)
         let gap = metrics.radicalHorizontalGap(size: size)
         let verticalGap = metrics.radicalVerticalGap(size: size, displayStyle: displayStyle)
         let ruleThickness = metrics.radicalRuleThickness(size: size)
         let extraAscender = metrics.radicalExtraAscender(size: size)
-        let radicandX = radical.width + gap
-        let overbarY = radicandBox.height + verticalGap
 
-        var elements = radical.elements
+        // The vinculum (overbar) sits above the radicand; the radical sign is two
+        // strokes drawn as vectors so it scales with the radicand height instead
+        // of being a fixed glyph. The up-stroke meets the left end of the vinculum.
+        let overbarY = radicandBox.height + verticalGap
+        let signWidth = max(size * 0.55, (overbarY + radicandBox.depth) * 0.42)
+        let radicandX = signWidth + gap
+        let valleyX = signWidth * 0.4
+        let bottomY = -radicandBox.depth
+        let leftY = overbarY * 0.45
+
+        var elements: [MathLayoutElement] = [
+            .line(x1: 0, y1: leftY, x2: valleyX, y2: bottomY, thickness: ruleThickness, color: color),
+            .line(x1: valleyX, y1: bottomY, x2: signWidth, y2: overbarY, thickness: ruleThickness, color: color),
+            .rule(x: signWidth, y: overbarY, width: radicandBox.width, height: ruleThickness, color: color),
+        ]
         elements += radicandBox.elements.map { $0.offsetBy(x: radicandX, y: 0) }
-        elements.append(.rule(
-            x: radicandX,
-            y: overbarY,
-            width: radicandBox.width,
-            height: ruleThickness,
-            color: color,
-        ))
 
         return MathBox(
-            width: radical.width + gap + radicandBox.width,
-            height: max(radical.height, overbarY + ruleThickness + extraAscender),
-            depth: max(radical.depth, radicandBox.depth),
+            width: signWidth + gap + radicandBox.width,
+            height: overbarY + ruleThickness + extraAscender,
+            depth: radicandBox.depth,
             elements: elements,
         )
     }
