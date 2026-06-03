@@ -224,6 +224,32 @@ struct MathLayoutTests {
         #expect(asciiSum.textElement(containing: "sum") != nil)
     }
 
+    @Test("unicodeWhereCovered picks per symbol from the coverage closure")
+    func unicodeWhereCoveredPicksPerSymbol() throws {
+        let measure: @Sendable (MathRun) -> Double = { Double($0.text.count) * $0.size * 0.6 }
+
+        // A font that covers the summation glyph but not the integral glyph.
+        let covers: (String) -> Bool = { $0 == "\u{2211}" }
+
+        let sum = try MathParser().parse(#"\sum"#).root
+        let integral = try MathParser().parse(#"\int"#).root
+
+        let layout = MathLayout(
+            font: .regular,
+            color: .black,
+            measureText: measure,
+            symbolStyle: .unicodeWhereCovered,
+            symbolCoverage: covers,
+        )
+        let laidOutSum = try layout.layout(sum, size: 10, displayStyle: true)
+        let laidOutIntegral = try layout.layout(integral, size: 10, displayStyle: true)
+
+        // Covered symbol keeps its Unicode glyph; uncovered one falls back to ASCII.
+        #expect(laidOutSum.textElement(containing: "\u{2211}") != nil)
+        #expect(laidOutIntegral.textElement(containing: "\u{222B}") == nil)
+        #expect(laidOutIntegral.textElement(containing: "int") != nil)
+    }
+
     @Test("Radical sign is two strokes that scale with the radicand")
     func radicalSignScalesWithStrokes() throws {
         let measure: @Sendable (MathRun) -> Double = { Double($0.text.count) * $0.size * 0.6 }

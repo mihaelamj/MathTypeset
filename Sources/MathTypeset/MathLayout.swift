@@ -11,6 +11,17 @@ public struct MathLayout {
         /// consumers whose font cannot draw the Unicode math glyphs, such as a
         /// PDF base-14 profile.
         case asciiFallback
+        /// Use the Unicode glyph per symbol when the consumer's font covers it,
+        /// and the ASCII transliteration otherwise. The decision is delegated to
+        /// the ``symbolCoverage`` closure, which answers, for a symbol's Unicode
+        /// `display` string, whether the active font can draw it (no closure
+        /// means "covers nothing", i.e. all fallback). This keeps the engine
+        /// font-program-free: the consumer owns the `cmap` coverage lookup,
+        /// exactly as it owns ``measureText``. A font with full math coverage
+        /// then behaves like ``unicode``; a base-14 font like ``asciiFallback``;
+        /// a partial font gets real glyphs where it can and a readable fallback
+        /// where it cannot.
+        case unicodeWhereCovered
     }
 
     public var font: MathFontStyle
@@ -18,6 +29,11 @@ public struct MathLayout {
     public var measureText: (MathRun) throws -> Double
     public var metrics: MathLayoutMetrics
     public var symbolStyle: SymbolStyle
+    /// Answers, for a symbol's Unicode `display` string, whether the active font
+    /// can draw it. Consulted only when ``symbolStyle`` is
+    /// ``SymbolStyle/unicodeWhereCovered``. Like ``measureText``, the consumer
+    /// supplies it; the engine never inspects the font program itself.
+    public var symbolCoverage: ((String) -> Bool)?
 
     public init(
         font: MathFontStyle,
@@ -25,12 +41,14 @@ public struct MathLayout {
         measureText: @escaping (MathRun) throws -> Double,
         metrics: MathLayoutMetrics = .default,
         symbolStyle: SymbolStyle = .unicode,
+        symbolCoverage: ((String) -> Bool)? = nil,
     ) {
         self.font = font
         self.color = color
         self.measureText = measureText
         self.metrics = metrics
         self.symbolStyle = symbolStyle
+        self.symbolCoverage = symbolCoverage
     }
 
     public func layout(
@@ -44,7 +62,7 @@ public struct MathLayout {
         case let .text(text):
             try layoutText(text, size: size)
         case let .symbol(display, linearized, _):
-            try layoutText(symbolStyle == .asciiFallback ? linearized : display, size: size)
+            try layoutText(symbolText(display: display, linearized: linearized), size: size)
         case let .fraction(numerator, denominator):
             try layoutFraction(
                 numerator: numerator,
@@ -212,6 +230,21 @@ public struct MathLayout {
         }
 
         return MathBox(width: cursor, height: height, depth: depth, elements: elements)
+    }
+
+    /// Picks the drawable string for a symbol command according to
+    /// ``symbolStyle``: the Unicode `display` glyph, the ASCII `linearized`
+    /// transliteration, or a per-symbol choice driven by a font-coverage
+    /// closure.
+    private func symbolText(display: String, linearized: String) -> String {
+        switch symbolStyle {
+        case .unicode:
+            return display
+        case .asciiFallback:
+            return linearized
+        case .unicodeWhereCovered:
+            return (symbolCoverage?(display) ?? false) ? display : linearized
+        }
     }
 
     private func layoutText(_ text: String, size: Double) throws -> MathBox {

@@ -5,6 +5,19 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0]
+
+### Added
+
+- `MathLayout.SymbolStyle.unicodeWhereCovered` plus a `symbolCoverage` closure on
+  `MathLayout`. Each math symbol draws its Unicode glyph when the consumer's font
+  covers it and the ASCII transliteration otherwise, decided per symbol by the
+  closure. The engine stays font-program-free: the consumer owns the coverage
+  lookup, exactly as it owns `measureText`. A font with full math coverage then
+  behaves like `.unicode`, a base-14 font like `.asciiFallback`, and a partial
+  font gets real glyphs where it can and a readable fallback where it cannot.
+  Additive: `.unicode` and `.asciiFallback` are unchanged.
+
 ## [0.4.0]
 
 ### Changed
