@@ -5,6 +5,18 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0]
+
+### Added
+
+- TeX horizontal spacing commands. New `MathNode.space(em:)` node, with the
+  parser mapping `\quad` (1 em), `\qquad` (2 em), `\,` (thin), `\:` (medium),
+  `\;` (thick), `\!` (negative thin), and `\ ` (control space) to em multiples.
+  Layout draws nothing and only advances (or retreats) the cursor; the
+  linearizer emits a single space. Previously these commands threw
+  `unsupportedControlWord`, forcing the whole formula to a visible-source
+  fallback in consumers. Additive.
+
 ## [0.5.0]
 
 ### Added

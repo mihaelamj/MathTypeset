@@ -250,6 +250,32 @@ struct MathLayoutTests {
         #expect(laidOutIntegral.textElement(containing: "int") != nil)
     }
 
+    @Test("Spacing commands advance the cursor by an em multiple")
+    func spacingCommandsAdvanceByEmMultiple() throws {
+        let measure: @Sendable (MathRun) -> Double = { Double($0.text.count) * $0.size * 0.6 }
+        func width(_ source: String) throws -> Double {
+            let node = try MathParser().parse(source).root
+            return try MathLayout(font: .regular, color: .black, measureText: measure)
+                .layout(node, size: 10, displayStyle: true).width
+        }
+
+        // \qquad is 2 em, \quad is 1 em, so two ab pairs separated by \qquad are
+        // wider than the same pairs separated by \quad by exactly 1 em at size 10.
+        let quad = try width(#"a\quad b"#)
+        let qquad = try width(#"a\qquad b"#)
+        #expect(abs((qquad - quad) - 10) < 0.0001)
+
+        // Thin/medium/thick spaces are ordered, and the negative thin space
+        // retreats the cursor (net width below the bare "ab").
+        let bare = try width("ab")
+        let thin = try width(#"a\,b"#)
+        let thick = try width(#"a\;b"#)
+        let negative = try width(#"a\!b"#)
+        #expect(thin > bare)
+        #expect(thick > thin)
+        #expect(negative < bare)
+    }
+
     @Test("Radical sign is two strokes that scale with the radicand")
     func radicalSignScalesWithStrokes() throws {
         let measure: @Sendable (MathRun) -> Double = { Double($0.text.count) * $0.size * 0.6 }

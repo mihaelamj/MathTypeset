@@ -40,6 +40,8 @@ public struct MathLinearizer {
             return "\(open)\(body)\(close)"
         case let .scaledDelimiter(symbol, _):
             return symbol
+        case .space:
+            return " "
         }
     }
 

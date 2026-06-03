@@ -172,6 +172,10 @@ public struct MathParser {
                 return try parseMatrixEnvironment()
             case "big", "Big", "bigg", "Bigg":
                 return try parseScaledDelimiter(scale: Self.delimiterScales[command] ?? 1)
+            case "quad":
+                return .space(em: 1)
+            case "qquad":
+                return .space(em: 2)
             case "right", "end", "newcommand":
                 throw ParseError.unsupportedControlWord(command)
             default:
@@ -388,6 +392,16 @@ public struct MathParser {
             switch character {
             case "{", "}", "_", "^", "\\", "$":
                 return .text(String(character))
+            case ",": // thin space
+                return .space(em: 3.0 / 18.0)
+            case ":": // medium space
+                return .space(em: 4.0 / 18.0)
+            case ";": // thick space
+                return .space(em: 5.0 / 18.0)
+            case "!": // negative thin space
+                return .space(em: -3.0 / 18.0)
+            case " ": // control space, a normal interword gap
+                return .space(em: 6.0 / 18.0)
             default:
                 throw ParseError.unsupportedControlWord(String(character))
             }

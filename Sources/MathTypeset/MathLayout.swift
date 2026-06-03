@@ -63,6 +63,8 @@ public struct MathLayout {
             try layoutText(text, size: size)
         case let .symbol(display, linearized, _):
             try layoutText(symbolText(display: display, linearized: linearized), size: size)
+        case let .space(em):
+            MathBox(width: em * size, height: 0, depth: 0, elements: [])
         case let .fraction(numerator, denominator):
             try layoutFraction(
                 numerator: numerator,
