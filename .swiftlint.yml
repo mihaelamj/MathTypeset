@@ -11,5 +11,4 @@ force_unwrapping: error
 force_try: error
 force_cast: error
 excluded:
-  - Packages/.build
-  - researchcode
+  - .build
