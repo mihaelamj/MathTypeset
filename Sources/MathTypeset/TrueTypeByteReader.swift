@@ -33,6 +33,13 @@ public struct TrueTypeByteReader {
         return bytes[offset]
     }
 
+    /// Reads `count` bytes starting at the absolute `offset`, throwing rather
+    /// than trapping if the range overflows the table.
+    public func bytes(at offset: Int, count: Int) throws -> [UInt8] {
+        try requireRange(offset: offset, count: count)
+        return Array(bytes[offset ..< offset + count])
+    }
+
     public func tag(at offset: Int) throws -> String {
         try requireRange(offset: offset, count: 4)
         let tagBytes = Array(bytes[offset ..< offset + 4])

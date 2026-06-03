@@ -5,6 +5,14 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3]
+
+### Added
+
+- Add `TrueTypeByteReader.bytes(at:count:)` for bounds-checked N-byte / sub-slice
+  reads (throws on overflow), for consumers walking variable-length structures
+  such as CFF `INDEX` data.
+
 ## [0.2.2]
 
 ### Added
