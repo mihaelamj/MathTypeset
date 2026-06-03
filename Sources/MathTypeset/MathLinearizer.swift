@@ -1,7 +1,9 @@
 import Foundation
 
-struct MathLinearizer {
-    func linearize(_ node: MathNode) -> String {
+public struct MathLinearizer {
+    public init() {}
+
+    public func linearize(_ node: MathNode) -> String {
         collapseSpaces(rawLinearization(for: node))
     }
 
