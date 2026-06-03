@@ -1,21 +1,36 @@
 import Foundation
 
 public struct MathLayout {
+    /// How symbol commands are turned into drawable text.
+    public enum SymbolStyle: Sendable {
+        /// Use the Unicode glyph (`\sum` -> ∑, `\sqrt` -> √). The default; correct
+        /// for any font that covers math symbols (a real math font, DejaVu,
+        /// Liberation, etc.).
+        case unicode
+        /// Use an ASCII transliteration (`\sum` -> "sum", `\sqrt` -> "sqrt") for
+        /// consumers whose font cannot draw the Unicode math glyphs, such as a
+        /// PDF base-14 profile.
+        case asciiFallback
+    }
+
     public var font: MathFontStyle
     public var color: MathColor
     public var measureText: (MathRun) throws -> Double
     public var metrics: MathLayoutMetrics
+    public var symbolStyle: SymbolStyle
 
     public init(
         font: MathFontStyle,
         color: MathColor,
         measureText: @escaping (MathRun) throws -> Double,
         metrics: MathLayoutMetrics = .default,
+        symbolStyle: SymbolStyle = .unicode,
     ) {
         self.font = font
         self.color = color
         self.measureText = measureText
         self.metrics = metrics
+        self.symbolStyle = symbolStyle
     }
 
     public func layout(
@@ -28,8 +43,8 @@ public struct MathLayout {
             try layoutSequence(children, size: size, displayStyle: displayStyle)
         case let .text(text):
             try layoutText(text, size: size)
-        case let .symbol(display, _, _):
-            try layoutText(display, size: size)
+        case let .symbol(display, linearized, _):
+            try layoutText(symbolStyle == .asciiFallback ? linearized : display, size: size)
         case let .fraction(numerator, denominator):
             try layoutFraction(
                 numerator: numerator,
@@ -255,7 +270,8 @@ public struct MathLayout {
         size: Double,
         displayStyle: Bool,
     ) throws -> MathBox {
-        let radical = try layoutText("sqrt", size: metrics.radicalSignSize(size: size))
+        let radicalSign = symbolStyle == .asciiFallback ? "sqrt" : "\u{221A}"
+        let radical = try layoutText(radicalSign, size: metrics.radicalSignSize(size: size))
         let radicandBox = try layout(radicand, size: metrics.radicalRadicandSize(size: size), displayStyle: displayStyle)
         let gap = metrics.radicalHorizontalGap(size: size)
         let verticalGap = metrics.radicalVerticalGap(size: size, displayStyle: displayStyle)

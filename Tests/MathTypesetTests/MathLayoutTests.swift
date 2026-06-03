@@ -211,6 +211,27 @@ struct MathLayoutTests {
         #expect(abs(limits.depth - 13.27) < 0.0001)
     }
 
+    @Test("Symbol style picks Unicode glyphs or the ASCII fallback")
+    func symbolStylePicksGlyphsOrFallback() throws {
+        let measure: @Sendable (MathRun) -> Double = { Double($0.text.count) * $0.size * 0.6 }
+
+        let sum = try MathParser().parse(#"\sum"#).root
+        let unicodeSum = try MathLayout(font: .regular, color: .black, measureText: measure, symbolStyle: .unicode)
+            .layout(sum, size: 10, displayStyle: true)
+        let asciiSum = try MathLayout(font: .regular, color: .black, measureText: measure, symbolStyle: .asciiFallback)
+            .layout(sum, size: 10, displayStyle: true)
+        #expect(unicodeSum.textElement(containing: "\u{2211}") != nil)
+        #expect(asciiSum.textElement(containing: "sum") != nil)
+
+        let root = MathNode.radical(radicand: .text("x"))
+        let unicodeSqrt = try MathLayout(font: .regular, color: .black, measureText: measure, symbolStyle: .unicode)
+            .layout(root, size: 10, displayStyle: false)
+        let asciiSqrt = try MathLayout(font: .regular, color: .black, measureText: measure, symbolStyle: .asciiFallback)
+            .layout(root, size: 10, displayStyle: false)
+        #expect(unicodeSqrt.textElement(containing: "\u{221A}") != nil)
+        #expect(asciiSqrt.textElement(containing: "sqrt") != nil)
+    }
+
     private func makeLayout(metrics: MathLayoutMetrics = .default) -> MathLayout {
         MathLayout(
             font: .regular,

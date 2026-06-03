@@ -5,6 +5,23 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0]
+
+### Changed
+
+- Symbol commands now carry their **Unicode glyph** as the drawn `display`
+  (`\\sum` -> ∑, `\\sqrt` -> √, `\\pm` -> ±, `\\leq` -> ≤, `\\infty` -> ∞, Greek letters, and
+  the common operators, relations, and arrows) instead of an ASCII command word.
+  The ASCII transliteration is retained as `linearized` (accessibility /
+  extraction text) and is selectable at draw time.
+
+### Added
+
+- `MathLayout.SymbolStyle` (`.unicode` default, `.asciiFallback`) chooses whether
+  runs draw the Unicode glyph or the ASCII transliteration, so a consumer whose
+  font cannot draw math glyphs (e.g. a PDF base-14 profile) can opt into the
+  fallback. The layout algorithm is unchanged; only the run text differs.
+
 ## [0.2.3]
 
 ### Added
