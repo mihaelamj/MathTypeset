@@ -95,4 +95,13 @@ useful for baseline-aligning inline math.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MathTypeset is dual licensed as [AGPL-3.0](LICENSE) / commercial.
+
+The AGPL is a free, open-source license, but that does not mean the software is
+free of obligations. It is a copyleft license: any derivative work, including
+software or a network service that incorporates MathTypeset, must also be
+released under the AGPL-3.0 with its complete corresponding source. If you are
+building something that cannot comply with the AGPL terms, a
+[commercial license](COMMERCIAL.md) is available that exempts you from them.
+
+See [COMMERCIAL.md](COMMERCIAL.md) for commercial licensing.

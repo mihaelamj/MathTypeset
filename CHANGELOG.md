@@ -5,6 +5,16 @@ All notable changes to MathTypeset are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- License changed from MIT to AGPL-3.0. MathTypeset is now dual licensed:
+  AGPL-3.0 for open-source use, with a commercial license available for
+  closed-source or otherwise AGPL-incompatible use (see `COMMERCIAL.md`).
+  Versions published before this change remain available under their original
+  MIT terms.
+
 ## [0.6.0]
 
 ### Added
